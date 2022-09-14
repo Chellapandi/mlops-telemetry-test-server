@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package ai.h2o.cloud.telemetry.v1;
+option go_package =  "github.com/h2oai/h2o-ai-cloud/gen/go/rpc/proto/telemetry/v1";
+option java_multiple_files = true;
+option java_package = "ai.h2o.cloud.telemetry.v1";
+
+// Representation of a gauge metric relating to resource and AI unit usage.
+message UsageGauge{
+  oneof gauge {
+    BillingResourceGauge billing_resources = 1;
+  }
+}
+
+// Representation of a gauge containing all the important metrics to compute AI unit usage for billing.
+message BillingResourceGauge{
+  int64 memory_limit_bytes = 1;
+  int64 memory_reservation_bytes = 2;
+  int32 cpu_limit_millicpu = 3;
+  int32 cpu_reservation_millicpu = 4;
+  int32 gpu_count = 5;
+  // A resource is the primary resource of the platform - DAI, app instance, model deployment, etc. mostly these constitute 1 pod.
+  int32 resources = 6;
+  // Some resources have no reservation or smaller than the minimum allowed by AI unit pricing model so in this sum we pad those with a min value.
+  int64 padded_memory_reservation_bytes = 7;
+  // Some resources have no reservation or smaller than the minimum allowed by AI unit pricing model so in this sum we pad those with a min value.
+  int32 padded_cpu_reservation_millicpu = 8;
+}

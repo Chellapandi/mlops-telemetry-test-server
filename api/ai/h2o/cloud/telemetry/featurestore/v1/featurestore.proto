@@ -1,0 +1,201 @@
+syntax = "proto3";
+
+package ai.h2o.cloud.telemetry.featurestore.v1;
+option go_package =  "github.com/h2oai/h2o-ai-cloud/gen/go/api/proto/telemetry/featurestore/v1";
+option java_multiple_files = true;
+option java_package = "ai.h2o.cloud.telemetry.featurestore.v1";
+
+import "google/protobuf/timestamp.proto";
+
+message AccessEvent {
+  enum ActionType {
+    ACTION_UNSPECIFIED = 0;
+    GRANT = 1;
+    REVOKE = 2;
+  }
+  ActionType action = 1;
+
+  enum AccessedResource {
+    ACCESS_UNSPECIFIED = 0;
+    PROJECT = 1;
+    FEATURE_SET = 2;
+  }
+  AccessedResource type = 2;
+  string resource_id = 3;
+  string resource_name = 4;
+
+  enum PermissionType {
+    PERMISSION_UNSPECIFIED = 0;
+    OWNER = 1;
+    EDITOR = 2;
+    CONSUMER = 3;
+    SENSITIVE_CONSUMER = 4;
+  }
+  PermissionType permission = 5;
+  string receiver_id = 6;
+}
+
+message Project {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  google.protobuf.Timestamp create_time = 4;
+  google.protobuf.Timestamp last_update_time = 5;
+}
+
+message ProjectEvent {
+  oneof event {
+    ProjectCreatedEvent created = 1;
+    ProjectUpdatedEvent updated = 2;
+    ProjectDeletedEvent deleted = 3;
+    ProjectFetchedEvent fetched = 4;
+  }
+}
+
+message ProjectCreatedEvent {
+  Project project = 1;
+}
+
+message ProjectUpdatedEvent {
+  Project project = 1;
+}
+
+message ProjectDeletedEvent {
+  Project project = 1;
+}
+
+message ProjectFetchedEvent {
+  Project project = 1;
+}
+
+message FeatureSet {
+  string id = 1;
+  string feature_set_name = 2;
+  string current_version = 3;
+  string project_id = 4;
+  google.protobuf.Timestamp create_time = 5;
+  google.protobuf.Timestamp last_update_time = 6;
+}
+
+message FeatureSetEvent {
+  oneof event {
+    FeatureSetIngestEvent ingest = 1;
+    FeatureSetRetrieveEvent retrieve = 2;
+    FeatureSetPreviewEvent preview = 3;
+    FeatureSetComputeStatisticsEvent compute_statistics = 4;
+    FeatureSetMaterializationOnlineEvent materialization_online = 5;
+    FeatureSetRegistrationEvent registration = 6;
+    FeatureSetNewVersionEvent version = 7;
+    FeatureSetUpdateEvent update = 8;
+  }
+}
+
+message FeatureSetIngestEvent {
+  FeatureSet feature_set = 1;
+}
+
+message FeatureSetRetrieveEvent {
+  FeatureSet feature_set = 1;
+}
+
+message FeatureSetPreviewEvent {
+  FeatureSet feature_set = 1;
+}
+
+message FeatureSetComputeStatisticsEvent {
+  FeatureSet feature_set = 1;
+}
+
+message FeatureSetRevertEvent {
+  FeatureSet feature_set = 1;
+}
+
+message FeatureSetMaterializationOnlineEvent {
+  FeatureSet feature_set = 1;
+}
+
+message FeatureSetRegistrationEvent {
+  FeatureSet feature_set = 1;
+}
+
+message FeatureSetNewVersionEvent {
+  FeatureSet feature_set = 1;
+}
+
+message FeatureSetUpdateEvent {
+  FeatureSet feature_set = 1;
+}
+
+message FeatureStoreJob{
+  string id = 1;
+  string error_msg = 2;
+  string featureset_id = 3;
+  map<string, string> labels = 4;
+}
+
+message FeatureStoreJobEvent {
+  oneof event {
+    FeatureStoreJobSubmittedEvent submitted = 1;
+    FeatureStoreJobRunningEvent running = 2;
+    FeatureStoreJobFailedEvent failed = 3;
+    FeatureStoreJobSuccessEvent success = 4;
+  }
+}
+
+enum PodType {
+  POD_UNSPECIFIED = 0;
+  DRIVER = 1;
+  EXECUTOR = 2;
+}
+
+message FeatureStoreJobResources {
+  uint32 cpu_limit = 1;
+  uint64 memory_byte_limit = 2;
+}
+
+message ExecutorStatistics {
+  uint32 count = 1;
+  uint32 sum = 2;
+  uint32 min_executors_number = 3;
+  uint32 max_executors_number = 4;
+  double avg_executors_number = 5;
+}
+
+message FeatureStoreJobSubmittedEvent {
+  FeatureStoreJob job = 1;
+  PodType pod_type = 2;
+  uint32 executors_number = 3;
+  FeatureStoreJobResources resources = 4;
+}
+
+message FeatureStoreJobRunningEvent {
+  FeatureStoreJob job = 1;
+  PodType pod_type = 2;
+  uint32 executors_number = 3;
+  FeatureStoreJobResources resources = 4;
+  ExecutorStatistics statistics = 5;
+}
+
+message FeatureStoreJobFailedEvent {
+  FeatureStoreJob job = 1;
+  PodType pod_type = 2;
+  uint32 executors_number = 3;
+  FeatureStoreJobResources resources = 4;
+}
+
+message FeatureStoreJobSuccessEvent {
+  FeatureStoreJob job = 1;
+  PodType pod_type = 2;
+  uint32 executors_number = 3;
+  FeatureStoreJobResources resources = 4;
+}
+
+message FeatureStoreEvent {
+  string message = 1;
+  oneof element {
+    AccessEvent access = 2;
+    ProjectEvent project = 3;
+    FeatureSetEvent feature_set = 4;
+    FeatureStoreJobEvent job = 5;
+  }
+}

@@ -1,0 +1,182 @@
+syntax = "proto3";
+
+package ai.h2o.cloud.telemetry.v1;
+option go_package =  "github.com/h2oai/h2o-ai-cloud/gen/go/rpc/proto/telemetry/v1";
+option java_multiple_files = true;
+option java_package = "ai.h2o.cloud.telemetry.v1";
+
+import "google/protobuf/timestamp.proto";
+
+
+// Representation of a single event related to one or more HAC apps.
+// Contains only metadata, as the semantic meaning of the event is given by the stream_id of the enclosing Entry.
+message AppEvent{
+  oneof event {
+    AppEventCreated created = 1;
+    AppEventDeleted deleted = 2;
+    AppEventUpdated updated = 3;
+    AppEventPreferenceUpdated liked = 4;
+    AppEventPreferenceUpdated unliked = 5;
+    AppEventPreferenceUpdated pinned = 6;
+    AppEventPreferenceUpdated unpinned = 7;
+  }
+}
+
+message AppEventCreated{
+  App app = 1;
+  AppRuntime runtime = 2;
+}
+
+message AppEventDeleted{
+  App app = 1;
+}
+
+message AppEventUpdated{
+  App app = 1;
+  App.Visibility visibility = 2;
+}
+
+message AppEventPreferenceUpdated{
+  App app = 1;
+}
+
+// Representation of a gauge metric relating to one or more HAC apps.
+message AppGauge{
+  oneof gauge {
+    AppGaugeApps apps = 1;
+  }
+}
+
+message AppGaugeApps {
+  // If populated, the count includes only app versions with that name.
+  string name = 1;
+  int32 count = 2;
+}
+
+// Representation of a single event related to a single or more HAC app instances.
+// Contains only metadata, as the semantic meaning of the event is given by the stream_id of the enclosing Entry.
+message AppInstanceEvent{
+  oneof event {
+    AppInstanceEventStatus started = 1;
+    AppInstanceEventStatus terminated = 2;
+    AppInstanceEventStatus suspended = 3;
+    AppInstanceEventStatus resumed = 4;
+    AppInstanceEventUpdated updated = 5;
+  }
+}
+
+message AppInstanceEventStatus {
+  AppInstance instance = 1;
+  App app = 2;
+}
+
+message AppInstanceEventUpdated {
+  AppInstance instance = 1;
+  App app = 2;
+  AppInstance.Visibility visibility = 3;
+}
+
+// Representation of a gauge metric relating to one or more HAC app instances.
+message AppInstanceGauge{
+  oneof gauge {
+    AppInstanceGaugeRunning running = 1;
+  }
+}
+
+message AppInstanceGaugeRunning {
+  AppInstance instance = 1;
+  App app = 2;
+  KubernetesResources resources = 3;
+  KubernetesResourceUsage usage = 4;
+}
+
+message KubernetesResources {
+  // TODO: int64 gets converted to string in JSON, deal with it
+  int64 memory_limit_bytes = 1;
+  int64 memory_reservation_bytes = 2;
+  int32 cpu_limit_millicpu = 3;
+  int32 cpu_reservation_millicpu = 4;
+  int32 gpu_count = 5;
+  string gpu_type = 6;
+  int64 storage_bytes = 7;
+  string storage_class = 8;
+}
+
+message KubernetesResourceUsage {
+  int64 memory_bytes = 1;
+  int32 cpu_millicpu = 2;
+}
+
+// Represents a single App resource metadata.
+message App {
+  string id = 1;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  string owner_name = 4;
+  string owner_id = 5;
+  string name = 6;
+  string version = 7;
+  string title = 8;
+  string description = 9;
+  repeated string keywords = 10;
+
+  enum Visibility {
+    VISIBILITY_UNSPECIFIED = 0;
+    PRIVATE = 1; // Owner only
+    ALL_USERS = 2; // All signed-in users
+  }
+  Visibility visibility = 14;
+  repeated TagAssignment tags = 15;
+}
+
+// Represents a tag assigned to an app.
+message TagAssignment {
+  string id = 1;
+  google.protobuf.Timestamp assigned_at = 2;
+  string name = 3;
+  string title = 4;
+  string description = 5;
+  repeated string visitor_roles = 6;
+}
+
+message AppRuntime {
+  string runtime_version = 1;
+  string module = 2;
+  int64 volume_size_bytes = 3;
+  string volume_mount = 4;
+  int64 resource_volume_size_bytes = 5;
+  KubernetesResources resources = 6;
+  bool oidc_enabled = 7;
+  bool shm_enabled = 8;
+}
+
+// Represents a single running instance of an App.
+message AppInstance {
+  string id = 1;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  string app_id = 4;
+  enum Visibility {
+    VISIBILITY_UNSPECIFIED = 0;
+    PRIVATE = 1; // Owner only
+    ALL_USERS = 2; // All signed-in users
+    PUBLIC = 3; // Internet
+  }
+  Visibility visibility = 6;
+  string location = 7;
+
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_UNKNOWN = 1;
+    PENDING = 2;
+    DEPLOYED = 3;
+    FAILED = 4;
+    SUSPENDED = 5;
+  }
+  Status status = 8;
+
+  string owner_id = 9;
+  string owner_name = 10;
+
+  bool suspendable = 11;
+}

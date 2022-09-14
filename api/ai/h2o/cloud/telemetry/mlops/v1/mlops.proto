@@ -1,0 +1,161 @@
+syntax = "proto3";
+
+package ai.h2o.cloud.telemetry.mlops.v1;
+
+option go_package = "github.com/h2oai/mlops-telemetry/rpc/v1/proto";
+option java_multiple_files = true;
+option java_package = "ai.h2o.cloud.telemetry.mlops.v1";
+
+message MLOpsEvent {
+
+  oneof event {
+
+    UserEnrolled user_created = 1;
+
+    ProjectCreated project_created = 2;
+    ProjectDeleted project_deleted = 3;
+    ProjectUpdated project_updated = 4;
+    ProjectShared project_shared = 5;
+    ProjectUnshared project_unshared = 6;
+
+    DatasetCreated dataset_created = 7;
+    DatasetDeleted dataset_deleted = 8;
+    DatasetLinked dataset_linked = 9;
+    DatasetUnlinked dataset_unlinked = 10;
+
+    ExperimentCreated experiment_created = 11;
+    ExperimentDeleted experiment_deleted = 12;
+    ExperimentLinked experiment_linked = 13;
+    ExperimentUnlinked experiment_unlinked = 14;
+
+    CreateRegisteredModel create_registered_model = 15;
+    UpdateRegisteredModel update_registered_model = 16;
+
+    CreateRegisteredModelVersion create_registered_model_version = 17;
+
+    DeploymentCreated deployment_created = 18;
+    DeploymentDeleted deployment_deleted = 19;
+  }
+  // operation code value in audit_event table entry which will be useful to process MLOps Telemetry events.
+  string operation_code = 20;
+  // message value in audit_event table entry
+  string operation_message = 21;
+  // user performing the action
+  string actor_id = 22;
+}
+
+message UserEnrolled {
+  User user = 1;
+}
+
+message ProjectCreated {
+  Project project = 1;
+}
+
+message ProjectUpdated {
+  Project project = 1;
+}
+
+message ProjectDeleted {
+  Project project = 1;
+}
+
+message ProjectShared {
+  Project project = 1;
+  string user_id = 2;
+}
+
+message ProjectUnshared {
+  Project project = 1;
+  string user_id = 2;
+}
+
+message DatasetCreated{
+  Dataset dataset = 1;
+}
+
+message DatasetDeleted {
+  Dataset dataset = 1;
+}
+
+message DatasetLinked{
+  Dataset dataset = 1;
+  Project project = 2;
+}
+
+message DatasetUnlinked {
+  Dataset dataset = 1;
+  Project project = 2;
+}
+
+message ExperimentCreated {
+  Experiment experiment = 1;
+}
+
+message ExperimentDeleted {
+  Experiment experiment = 1;
+}
+
+message ExperimentLinked {
+  Experiment experiment = 1;
+  Project project = 2;
+}
+
+message ExperimentUnlinked {
+  Experiment experiment = 1;
+  Project project = 2;
+}
+
+message CreateRegisteredModel {
+  Model model = 1;
+}
+
+message UpdateRegisteredModel {
+  Model model = 1;
+}
+
+message CreateRegisteredModelVersion {
+  ModelVersion model_version = 1;
+}
+
+message User {
+  string id = 1;
+}
+
+message Dataset {
+  string id = 1;
+  string project_id = 2;
+}
+
+message Experiment {
+  string id = 1;
+  string project_id = 2;
+}
+
+message Model {
+  string id = 1;
+  string project_id = 2;
+  string experiment_id = 3;
+}
+
+message ModelVersion {
+  string id = 1;
+  string project_id = 2;
+  string experiment_id = 3;
+}
+
+message DeploymentCreated {
+  ModelVersion model_version = 1;
+  string id = 3;
+  string deployment_environment_id = 4;
+}
+
+message DeploymentDeleted {
+  ModelVersion model_version = 1;
+  string id = 2;
+  string deployment_environment_id = 3;
+}
+
+message Project {
+  string id = 1;
+}
