@@ -1,26 +1,35 @@
 syntax = "proto3";
 
 package ai.h2o.cloud.telemetry.v1;
-option go_package =  "github.com/h2oai/h2o-ai-cloud/gen/go/api/proto/telemetry/v1";
+option go_package = "github.com/h2oai/h2o-ai-cloud/gen/go/api/proto/telemetry/v1";
 option java_multiple_files = true;
-option java_package = "ai.h2o.cloud.telemetry.v1";
 
-import "v1/appstore.proto";
-import "v1/operator.proto";
-import "v1/featurestore.proto";
-import "v1/usage.proto";
+import "ai/h2o/cloud/telemetry/v1/appstore.proto";
+import "ai/h2o/cloud/telemetry/v1/usage.proto";
+import "ai/h2o/cloud/telemetry/aiem/v1/operator.proto";
+import "ai/h2o/cloud/telemetry/featurestore/v1/featurestore.proto";
+import "ai/h2o/cloud/telemetry/example/v1/example.proto";
+import "ai/h2o/cloud/telemetry/mlops/v1/mlops.proto";
+
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
-import "v1/mlops.proto";
-//import "google/rpc/status.proto";
+import "google/rpc/status.proto";
 
 // Supported resource types.
+// New components might add their resource types here, as extending enum is generally not supported in protobuf.
+// https://github.com/protocolbuffers/protobuf/issues/6104
 enum ResourceType {
   RESOURCE_TYPE_UNSPECIFIED = 0;
   APP = 1;
   APP_INSTANCE = 2;
   DAI_ENGINE = 3;
   FEATURE_STORE = 4;
+  PROJECT = 5; // Project is a centralised resource which can be created/accessed from any component such as MLOps, DAI etc.
+  MLOPS_EXPERIMENT = 6;
+  MLOPS_MODEL = 7;
+  MLOPS_DEPLOYMENT = 8;
+  MLOPS_USER = 9;
+  MLOPS_DATASET = 10;
   // DAI, MODEL, ...
 }
 
@@ -46,6 +55,9 @@ message Target {
 
   // Id of the resource associated with the entry; optional.
   string resource_id = 4;
+
+  // Id of the project
+  string project_id = 5;
 }
 
 // Represents a singular telemetry entry.
@@ -80,7 +92,9 @@ message Entry {
     EmptyEvent empty_event = 19;
     ai.h2o.cloud.telemetry.aiem.v1.EngineEvent engine_event = 30;
     ai.h2o.cloud.telemetry.featurestore.v1.FeatureStoreEvent feature_store_event = 31;
-    ai.h2o.cloud.telemetry.mlops.v1.MLOpsEvent mlops_event = 32;
+    ai.h2o.cloud.telemetry.example.v1.ExampleEvent example_event = 32;
+    ai.h2o.cloud.telemetry.mlops.v1.MLOpsEvent mlops_event = 33;
+    ai.h2o.cloud.telemetry.mlops.v1.MLOpsGauge mlops_gauge = 34;
   }
 
   // Identifier of tenant - cloud environment name; optional.
@@ -92,7 +106,7 @@ message Entry {
 message APIEvent{
   string service = 1;
   string method = 2;
-//  google.rpc.Status status = 3;
+  google.rpc.Status status = 3;
   google.protobuf.Duration latency = 4;
 }
 

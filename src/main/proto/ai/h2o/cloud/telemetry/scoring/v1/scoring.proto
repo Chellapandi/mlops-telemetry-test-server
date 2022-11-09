@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package ai.h2o.cloud.telemetry.scoring.v1;
+option go_package = "github.com/h2oai/h2o-ai-cloud/gen/go/api/proto/telemetry/v1";
+
+enum ScorerSource {
+  SCORER_SOURCE_UNSPECIFIED = 0;
+  MLOPS = 1;
+  E_SCORER = 2;
+}
+
+enum ScorerType {
+  SCORER_TYPE_UNSPECIFIED = 0;
+ REAL_TIME = 1;
+  BATCH = 2;
+}
+
+enum TargetType {
+  TARGET_TYPE_UNSPECIFIED = 0;
+  MANAGED_CLOUD = 1;
+  HYBRID_CLOUD = 2;
+  SNOWFLAKE = 3;
+}
+
+// A common set of scoring details for products such as eScorer, MLOps
+message ScoringDetails {
+  int64 data_points_count = 1;
+  int64 score_duration = 2;
+  ScorerSource scorer_source = 3;
+  ScorerType scorer_type = 4;
+  string model_type = 5;  // eg. DRIVERLESS_AI, H2O_3, MLFLOW, PYTHON(eScorer)
+  TargetType target_type = 6;
+}
