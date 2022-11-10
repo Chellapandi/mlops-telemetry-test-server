@@ -10,8 +10,8 @@ message EngineEvent{
   oneof event {
     EngineEventStarting starting = 1;
     EngineEventRunning running = 2;
-	EngineEventPausing pausing = 3;
-	EngineEventPaused paused = 4;
+    EngineEventPausing pausing = 3;
+    EngineEventPaused paused = 4;
     EngineEventFailed failed = 5;
     EngineEventDeleting deleting = 6;
   }

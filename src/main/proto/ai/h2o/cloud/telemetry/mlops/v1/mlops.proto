@@ -183,15 +183,15 @@ message ScoringResultCreated {
 
 message MLOpsGauge {
   oneof gauge {
-  UserGauge user_gauge = 1;
-  ProjectGauge project_gauge = 2;
-  ExperimentGauge experiment_gauge = 3;
-  DatasetGauge dataset_gauge = 4;
-  RegisteredModelGauge registered_model_gauge = 5;
-  RegisteredModelVersionGauge registered_model_version_guage = 6;
-  DeploymentGauge deployment_gauge = 7;
-  ScoringDataPointsGauge scoring_gauge = 8;
-}
+    UserGauge user_gauge = 1;
+    ProjectGauge project_gauge = 2;
+    ExperimentGauge experiment_gauge = 3;
+    DatasetGauge dataset_gauge = 4;
+    RegisteredModelGauge registered_model_gauge = 5;
+    RegisteredModelVersionGauge registered_model_version_guage = 6;
+    DeploymentGauge deployment_gauge = 7;
+    ScoringDataPointsGauge scoring_gauge = 8;
+  }
 }
 
 message UserGauge {
