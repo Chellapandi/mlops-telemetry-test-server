@@ -53,9 +53,18 @@ protobuf {
     generateProtoTasks {
         ofSourceSet('main').configureEach {
             plugins {
-                grpc { }
+                grpc {}
             }
         }
+    }
+}
+
+jar {
+    enabled = false
+    manifest {
+        attributes(
+                'Main-Class': 'ai.h2o.telemetry.TelemetryServerApplication'
+        )
     }
 }
 
