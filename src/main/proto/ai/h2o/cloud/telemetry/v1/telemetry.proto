@@ -5,12 +5,12 @@ option go_package = "github.com/h2oai/h2o-ai-cloud/gen/go/api/proto/telemetry/v1
 option java_multiple_files = true;
 
 import "ai/h2o/cloud/telemetry/v1/appstore.proto";
-import "ai/h2o/cloud/telemetry/v1/usage.proto";
 import "ai/h2o/cloud/telemetry/aiem/v1/operator.proto";
 import "ai/h2o/cloud/telemetry/featurestore/v1/featurestore.proto";
 import "ai/h2o/cloud/telemetry/example/v1/example.proto";
+import "ai/h2o/cloud/telemetry/v1/usage.proto";
 import "ai/h2o/cloud/telemetry/mlops/v1/mlops.proto";
-
+import "ai/h2o/cloud/telemetry/escorer/v1/escorer.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 import "google/rpc/status.proto";
@@ -95,6 +95,7 @@ message Entry {
     ai.h2o.cloud.telemetry.example.v1.ExampleEvent example_event = 32;
     ai.h2o.cloud.telemetry.mlops.v1.MLOpsEvent mlops_event = 33;
     ai.h2o.cloud.telemetry.mlops.v1.MLOpsGauge mlops_gauge = 34;
+    ai.h2o.cloud.telemetry.escorer.v1.EScorerEvent escorer_event = 35;
   }
 
   // Identifier of tenant - cloud environment name; optional.

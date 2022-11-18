@@ -1,46 +1,46 @@
 syntax = "proto3";
 
 package ai.h2o.cloud.telemetry.aiem.v1;
-option go_package = "github.com/h2oai/h2o-ai-cloud/gen/go/api/proto/telemetry/aiem/v1";
+option go_package =  "github.com/h2oai/h2o-ai-cloud/gen/go/api/proto/telemetry/aiem/v1";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 
 message EngineEvent{
   oneof event {
-    EngineEventStarting starting = 1;
-    EngineEventRunning running = 2;
-    EngineEventPausing pausing = 3;
-    EngineEventPaused paused = 4;
-    EngineEventFailed failed = 5;
-    EngineEventDeleting deleting = 6;
+	EngineEventStarting starting = 1;
+	EngineEventRunning running = 2;
+	EngineEventPausing pausing = 3;
+	EngineEventPaused paused = 4;
+	EngineEventFailed failed = 5;
+	EngineEventDeleting deleting = 6;
   }
 }
 
 message EngineEventStarting {
-  Engine engine = 1;
+	Engine engine = 1;
 }
 
 message EngineEventRunning {
-  Engine engine = 1;
-  PodStatus status = 2;
+	Engine engine = 1;
+	PodStatus status = 2;
 }
 
 message EngineEventPausing {
-  Engine engine = 1;
+	Engine engine = 1;
 }
 
 message EngineEventPaused {
-  Engine engine = 1;
+	Engine engine = 1;
 }
 
 message EngineEventFailed {
-  Engine engine = 1;
-  PodFailure failure = 2;
+	Engine engine = 1;
+	PodFailure failure = 2;
 }
 
 message EngineEventDeleting {
-  Engine engine = 1;
+	Engine engine = 1;
 }
 
 message Engine {
@@ -98,14 +98,14 @@ message Engine {
 }
 
 message PodStatus {
-  google.protobuf.Duration pod_scheduled_duration = 1;
-  google.protobuf.Duration containers_ready_duration = 2;
-  google.protobuf.Duration initialized_duration = 3;
-  google.protobuf.Duration ready_duration = 4;
-  google.protobuf.Duration pull_time = 5;
+	google.protobuf.Duration pod_scheduled_duration = 1;
+	google.protobuf.Duration containers_ready_duration = 2;
+	google.protobuf.Duration initialized_duration = 3;
+	google.protobuf.Duration ready_duration = 4;
+	google.protobuf.Duration pull_time = 5;
 }
 
 message PodFailure {
-  string reason = 1;
-  string message = 2;
+	string reason = 1;
+	string message = 2;
 }
