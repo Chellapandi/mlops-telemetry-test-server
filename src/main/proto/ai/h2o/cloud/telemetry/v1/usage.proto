@@ -1,9 +1,7 @@
 syntax = "proto3";
 
 package ai.h2o.cloud.telemetry.v1;
-option go_package =  "github.com/h2oai/h2o-ai-cloud/gen/go/rpc/proto/telemetry/v1";
-option java_multiple_files = true;
-option java_package = "ai.h2o.cloud.telemetry.v1";
+option go_package =  "github.com/h2oai/h2o-ai-cloud/gen/go/api/proto/telemetry/v1";
 
 // Representation of a gauge metric relating to resource and AI unit usage.
 message UsageGauge{

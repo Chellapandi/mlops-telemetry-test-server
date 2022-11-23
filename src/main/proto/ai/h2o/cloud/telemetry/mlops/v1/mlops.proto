@@ -1,10 +1,10 @@
 syntax = "proto3";
 
 package ai.h2o.cloud.telemetry.mlops.v1;
-
-option go_package = "github.com/h2oai/mlops-telemetry/rpc/v1/proto";
+option go_package = "github.com/h2oai/h2o-ai-cloud/gen/go/api/proto/telemetry/mlops/v1";
 option java_multiple_files = true;
-option java_package = "ai.h2o.cloud.telemetry.mlops.v1";
+
+import "ai/h2o/cloud/telemetry/scoring/v1/scoring.proto";
 
 message MLOpsEvent {
 
@@ -35,13 +35,13 @@ message MLOpsEvent {
 
     DeploymentCreated deployment_created = 18;
     DeploymentDeleted deployment_deleted = 19;
+
+    ScoringResultCreated scoring_created = 23;
   }
   // operation code value in audit_event table entry which will be useful to process MLOps Telemetry events.
   string operation_code = 20;
   // message value in audit_event table entry
   string operation_message = 21;
-  // user performing the action
-  string actor_id = 22;
 }
 
 message UserEnrolled {
@@ -122,40 +122,130 @@ message User {
   string id = 1;
 }
 
+message Project {
+  string id = 1;
+  string display_name = 2;
+}
+
 message Dataset {
   string id = 1;
   string project_id = 2;
+  string display_name = 3;
+  int64 size = 4;
+  int64 row_count = 5;
+  int64 column_count = 6;
 }
 
 message Experiment {
   string id = 1;
   string project_id = 2;
+  string display_name = 3;
+  string target_column = 4;
+  string weight_column = 5;
+  string fold_column = 6;
+  string training_duration = 7;
+  string status = 8;
+  string training_dataset_id = 9;
+  string validation_dataset_id = 10;
+  string test_dataset_id = 11;
 }
 
 message Model {
   string id = 1;
   string project_id = 2;
-  string experiment_id = 3;
+  string display_name = 3;
 }
 
 message ModelVersion {
   string id = 1;
   string project_id = 2;
-  string experiment_id = 3;
+  Model model = 3;
+  Experiment experiment = 4;
 }
 
 message DeploymentCreated {
-  ModelVersion model_version = 1;
-  string id = 3;
-  string deployment_environment_id = 4;
+  Deployment deployment = 1;
 }
 
 message DeploymentDeleted {
-  ModelVersion model_version = 1;
-  string id = 2;
-  string deployment_environment_id = 3;
+  Deployment deployment = 1;
 }
 
-message Project {
-  string id = 1;
+enum DeploymentMode {
+ DEPLOYMENT_MODE_UNSPECIFIED = 0;
+ SINGLE = 1;
+ CHAMPION_CHALLENGER = 2;
+ A_B_TESTING  = 3;
+}
+
+enum DeploymentType {
+ DEPLOYMENT_TYPE_UNSPECIFIED = 0;
+ REAL_TIME = 1;
+ BATCH = 2;
+}
+
+message DeploymentEnvironment {
+ string id = 1;
+ string display_name = 2;
+}
+
+message Deployment {
+ string id = 1;
+ ModelVersion model_version = 2;
+ DeploymentEnvironment environment = 3;
+ DeploymentMode mode = 4;
+ DeploymentType type = 5;
+}
+
+message ScoringResultCreated {
+ ai.h2o.cloud.telemetry.scoring.v1.ScoringDetails scoring_details = 1;
+ Deployment deployment = 2;
+ string artifact_type = 3; // eg. MOJO, PYTHON, MLFLOW
+}
+
+message MLOpsGauge {
+  oneof gauge {
+    UserGauge user_gauge = 1;
+    ProjectGauge project_gauge = 2;
+    ExperimentGauge experiment_gauge = 3;
+    DatasetGauge dataset_gauge = 4;
+    RegisteredModelGauge registered_model_gauge = 5;
+    RegisteredModelVersionGauge registered_model_version_guage = 6;
+    DeploymentGauge deployment_gauge = 7;
+  }
+}
+
+message UserGauge {
+  int64 total_count = 1;
+}
+
+message ProjectGauge {
+  int64 total_count = 1;
+}
+
+message ExperimentGauge {
+  int64 total_count = 1;
+  int64 failed_count = 2;
+  int64 aborted_count = 3;
+}
+
+message DatasetGauge {
+  int64 total_count = 1;
+}
+
+message RegisteredModelGauge {
+  int64 total_count = 1;
+}
+
+message RegisteredModelVersionGauge {
+  int64 total_count = 1;
+  int64 active_count = 2;
+  int64 inactive_count = 3;
+}
+
+message DeploymentGauge {
+  int64 total_count = 1;
+  int64 single_model_count = 2;
+  int64 shadow_traffic_count = 3;
+  int64 split_traffic_count = 4;
 }

@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package ai.h2o.cloud.telemetry.escorer.v1;
+option go_package = "github.com/h2oai/h2o-ai-cloud/gen/go/api/proto/telemetry/escorer/v1";
+option java_multiple_files = true;
+
+import "ai/h2o/cloud/telemetry/scoring/v1/scoring.proto";
+
+message EScorerEvent {
+
+  oneof event {
+    ScoringResultCreated scoring_created = 1;
+  }
+}
+
+message ErrorDetails {
+ int64 error_count = 1;
+ string last_error_msg = 2;
+}
+
+message LatencyDetails {
+ int64 latency = 1;
+ double latency_ave = 2;
+}
+
+message TrainingDetails {
+ string source = 1; // eg. DRIVERLESS_AI, H2O-3
+ string version = 2;
+}
+
+message ScoringResultCreated {
+ ai.h2o.cloud.telemetry.scoring.v1.ScoringDetails scoring_details = 1;
+ string customer_name = 2;
+ string model_name = 3;
+ int64 deployments_count = 4;
+ TrainingDetails training_details = 5;
+ string host_name = 6;
+ LatencyDetails latency_details = 7;
+ ErrorDetails error_details = 8;
+}

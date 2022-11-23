@@ -2,24 +2,22 @@ syntax = "proto3";
 
 package ai.h2o.cloud.telemetry.aiem.v1;
 option go_package =  "github.com/h2oai/h2o-ai-cloud/gen/go/api/proto/telemetry/aiem/v1";
-option java_multiple_files = true;
-option java_package = "ai.h2o.cloud.telemetry.aiem.v1";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 
 message EngineEvent{
   oneof event {
-	EngineEventCreated created = 1;
+	EngineEventStarting starting = 1;
 	EngineEventRunning running = 2;
-	EngineEventStopping stopping = 3;
-	EngineEventStopped stopped = 4;
+	EngineEventPausing pausing = 3;
+	EngineEventPaused paused = 4;
 	EngineEventFailed failed = 5;
-	EngineEventDeleted deleted = 6;
+	EngineEventDeleting deleting = 6;
   }
 }
 
-message EngineEventCreated {
+message EngineEventStarting {
 	Engine engine = 1;
 }
 
@@ -28,11 +26,11 @@ message EngineEventRunning {
 	PodStatus status = 2;
 }
 
-message EngineEventStopping {
+message EngineEventPausing {
 	Engine engine = 1;
 }
 
-message EngineEventStopped {
+message EngineEventPaused {
 	Engine engine = 1;
 }
 
@@ -41,7 +39,7 @@ message EngineEventFailed {
 	PodFailure failure = 2;
 }
 
-message EngineEventDeleted {
+message EngineEventDeleting {
 	Engine engine = 1;
 }
 
@@ -74,8 +72,8 @@ message Engine {
   // Time when the Engine was last updated.
   optional google.protobuf.Timestamp update_time = 6;
 
-  // Time when the Engine was last started.
-  optional google.protobuf.Timestamp last_start_time = 7;
+  // Time when the Engine was last resumed (or started for the first time).
+  optional google.protobuf.Timestamp resume_time = 7;
 
   // Human-readable name of the Engine. Contains at most 63 characters and is not unique.
   string display_name = 8;
@@ -94,6 +92,9 @@ message Engine {
 
   // The amount of storage in bytes requested by this Engine.
   int64 storage_bytes = 13;
+
+  // The UUID of a single run of the Engine.
+  string session = 14;
 }
 
 message PodStatus {
