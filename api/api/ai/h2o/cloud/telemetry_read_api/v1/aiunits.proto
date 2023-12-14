@@ -1,0 +1,167 @@
+syntax = "proto3";
+
+package ai.h2o.cloud.telemetry_read_api.v1;
+option go_package = "github.com/h2oai/telemetry/gen/go/api/proto/telemetry_read_api/v1";
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/type/interval.proto";
+import "google/protobuf/timestamp.proto";
+
+enum Granularity {
+  GRANULARITY_UNSPECIFIED = 0;
+  YEAR = 1;
+  MONTH = 2;
+  WEEK = 3;
+  DAY = 4;
+  HOUR = 5;
+}
+
+message ListComponentsRequest {
+  // The maximum number of components to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 component will be returned.
+  // The maximum value is 1000; values above 1000 will be coerced to 1000.
+  int32 page_size = 1;
+
+  // A page token, received from a previous `ListComponents` call.
+  // Provide this to retrieve the subsequent page.
+  string page_token = 2;
+}
+
+message ListComponentsResponse {
+  // The components set.
+  repeated Component components = 1;
+
+  // A token, which can be sent as `page_token` to retrieve the next page.
+  // If this field is omitted, there are no subsequent pages.
+  string next_page_token = 2;
+}
+
+message Component {
+  // Format: components/{component}
+  // The name of a component.
+  string name = 1;
+}
+
+message CalculateUsageRequest {
+  // Format: components/{component}:calculateUsage
+
+  // The start of interval of a time for which the usage is calculated.
+  google.protobuf.Timestamp start_time = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // The end of interval of a time for which the usage is calculated.
+  google.protobuf.Timestamp end_time = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // The granularity of the usage calculation, limited to difference between From and To field values of the request's interval.
+  // Examples:
+  // Request of the usage between 1.01.2022 and 1.01.2023 would return:
+  // - 1 year in case when granularity is set to YEAR
+  // - 12 months in case when granularity is set to MONTH
+  // - 52 weeks in case when granularity is set to WEEK
+  // Though request of the usage between 6.00 and 10.00 of a given day with the granularity set to DAY,
+  // will return 4 hours (downgrading the granularity to HOUR), as there's not enough data to calculate a whole day.
+  Granularity granularity = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // A component of which the usage is calculated. Example: components/global:calculateUsage
+  string component = 4 [(google.api.field_behavior) = REQUIRED];
+
+  // The maximum number of usage data points to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 usage data points will be returned.
+  // The maximum value is 1000; values above 1000 will be coerced to 1000.
+  int32 page_size = 5;
+
+  // A page token, received from a previous `CalculateUsage` call.
+  // Provide this to retrieve the subsequent page.
+  string page_token = 6;
+}
+
+message CalculateUsageResponse {
+  // The usage time series.
+  repeated Usage usage = 1;
+
+  // A token, which can be sent as `page_token` to retrieve the next page.
+  // If this field is omitted, there are no subsequent pages.
+  string next_page_token = 2;
+}
+
+message Usage {
+  // The milli AI Units amount.
+  int64 milli_ai_units = 1;
+
+  // The interval where AI Units were used.
+  google.type.Interval interval = 2;
+}
+
+message CalculateMaxUsageRequest {
+  // Format: components/{component}:calculateMaxUsage
+
+  // The component of which the usage is calculated. Example: components/global:calculateMaxUsage
+  string component = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // If none of below timestamps if provided, max usage will be calculated for whole time span of data.
+
+  // The start of the interval of a time for which the max usage is calculated. Optional.
+  // If not provided, max usage will be calculated only with respect to `to` field value.
+  google.protobuf.Timestamp start_time = 2;
+
+  // The end of the interval of a time for which the max usage is calculated. Optional.
+  // If not provided, max usage will be calculated only with respect to `from` field value.
+  google.protobuf.Timestamp end_time = 3;
+}
+
+message MaxUsage {
+  // The milli AI Units amount.
+  int64 milli_ai_units = 1;
+
+  // The timestamp where max usage occurred.
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+message CalculateMaxUsageResponse {
+  // The max usage including relevant timestamp.
+  MaxUsage max_usage = 1;
+}
+
+message GetQuotaRequest { }
+
+message GetQuotaResponse {
+  // Current quota.
+  Quota quota = 1;
+}
+
+message Quota {
+  // Milli AI Units.
+  int64 milli_ai_units = 1;
+}
+
+service ComponentService {
+  rpc ListComponents(ListComponentsRequest) returns (ListComponentsResponse) {
+    option (google.api.http) = {
+      get : "/v1/components"
+    };
+  }
+}
+
+service UsageService {
+  rpc CalculateUsage(CalculateUsageRequest) returns (CalculateUsageResponse) {
+    option (google.api.http) = {
+      get : "/v1/{component=components/*}:calculateUsage"
+    };
+  }
+
+  rpc CalculateMaxUsage(CalculateMaxUsageRequest) returns (CalculateMaxUsageResponse) {
+    option (google.api.http) = {
+      get : "/v1/{component=components/*}:calculateMaxUsage"
+    };
+  }
+}
+
+service QuotaService {
+  rpc GetQuota(GetQuotaRequest) returns (GetQuotaResponse) {
+    option (google.api.http) = {
+      get : "/v1/quota"
+    };
+  }
+}

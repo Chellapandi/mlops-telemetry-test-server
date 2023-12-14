@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package ai.h2o.cloud.telemetry_read_api.document_ai.v1;
+option go_package = "github.com/h2oai/telemetry/gen/go/api/proto/telemetry_read_api/document_ai/v1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+message CalculatePageCountRequest {
+  // Format: pipelines/{pipeline}:calculatePageCount
+
+  // Name of pipeline of which processed page count will be calculated.
+  // Examples:
+  // - pipelines/pipelineA:calculatePageCount
+  // - pipelines/-:calculatePageCount
+  // Note: `pipelines/-` pipeline is an aggregate name for all pipelines. See: https://google.aip.dev/159
+  string pipeline = 1;
+
+  // The start of interval of a time for which the page count is returned.
+  // If not specified, pages will be returned from start of the epoch (0 timestamp).
+  google.protobuf.Timestamp start_time = 2;
+
+  // The end of interval of a time for which the page count is returned.
+  // If not specified, pages will be returned to current timestamp.
+  google.protobuf.Timestamp end_time = 3;
+}
+
+message CalculatePageCountResponse {
+  // Returned page count.
+  PageCount page_count = 1;
+}
+
+message PageCount {
+  // Total page count.
+  int64 total = 1;
+  // Last scoring event timestamp.
+  // last_scoring_event_time is set to null when no events exist in the requested time period.
+  google.protobuf.Timestamp last_scoring_event_time = 2;
+}
+
+service PageCountService {
+  rpc CalculatePageCount(CalculatePageCountRequest) returns (CalculatePageCountResponse) {
+    option (google.api.http) = {
+      get : "/v1/{pipeline=pipelines/*}:calculatePageCount"
+    };
+  }
+}

@@ -1,0 +1,12 @@
+version: v1
+name: buf.build/h2oai/telemetry
+deps:
+  - buf.build/googleapis/googleapis
+lint:
+  use:
+    - DEFAULT
+  except:
+    - ENUM_VALUE_PREFIX  # Disabled deliberately.
+breaking:
+  use:
+    - FILE

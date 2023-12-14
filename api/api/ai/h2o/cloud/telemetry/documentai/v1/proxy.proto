@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package ai.h2o.cloud.telemetry.documentai.v1;
+option go_package =  "github.com/h2oai/telemetry/gen/go/api/proto/telemetry/documentai/v1";
+
+message DocumentAIEvent {
+  oneof event {
+    ScoreEvent scored = 1;
+  }
+}
+
+message ScoreEvent {
+  int32 num_pages_scored = 1;
+  string pipeline_name = 2;
+}

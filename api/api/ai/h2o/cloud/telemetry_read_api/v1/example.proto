@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package ai.h2o.cloud.telemetry_read_api.v1;
+option go_package = "github.com/h2oai/telemetry/gen/go/api/proto/telemetry_read_api/v1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+message GetExampleRequest {
+}
+
+message GetExampleResponse {
+  string name = 1;
+  repeated ExampleData data = 2;
+}
+
+message ExampleData {
+  string id = 1;
+  google.protobuf.Timestamp ts = 2;
+  string stream = 3;
+}
+
+service ExampleService {
+  rpc GetExample(GetExampleRequest) returns (GetExampleResponse) {
+    option (google.api.http) = {
+      get : "/v1/example"
+    };
+  }
+}

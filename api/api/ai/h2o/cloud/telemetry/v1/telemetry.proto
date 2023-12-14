@@ -1,0 +1,142 @@
+syntax = "proto3";
+
+package ai.h2o.cloud.telemetry.v1;
+option go_package = "github.com/h2oai/telemetry/gen/go/api/proto/telemetry/v1";
+
+import "ai/h2o/cloud/telemetry/v1/appstore.proto";
+import "ai/h2o/cloud/telemetry/aiem/v1/operator.proto";
+import "ai/h2o/cloud/telemetry/featurestore/v1/featurestore.proto";
+import "ai/h2o/cloud/telemetry/example/v1/example.proto";
+import "ai/h2o/cloud/telemetry/v1/usage.proto";
+import "ai/h2o/cloud/telemetry/mlops/v1/mlops.proto";
+import "ai/h2o/cloud/telemetry/escorer/v1/escorer.proto";
+import "ai/h2o/cloud/telemetry/documentai/v1/proxy.proto";
+import "ai/h2o/cloud/telemetry/appstore/v1/appstore.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/rpc/status.proto";
+
+// Supported resource types.
+// New components might add their resource types here, as extending enum is generally not supported in protobuf.
+// https://github.com/protocolbuffers/protobuf/issues/6104
+enum ResourceType {
+  RESOURCE_TYPE_UNSPECIFIED = 0;
+  APP = 1;
+  APP_INSTANCE = 2;
+  DAI_ENGINE = 3;
+  FEATURE_STORE = 4;
+  PROJECT = 5; // Project is a centralised resource which can be created/accessed from any component such as MLOps, DAI etc.
+  MLOPS_EXPERIMENT = 6;
+  MLOPS_MODEL = 7;
+  MLOPS_DEPLOYMENT = 8;
+  MLOPS_USER = 9;
+  MLOPS_DATASET = 10;
+  H2O_ENGINE = 11;
+  SCORING = 12;
+}
+
+// Supported entry kinds.
+enum Kind {
+  KIND_UNSPECIFIED = 0;
+  EVENT = 1;
+  GAUGE_METRIC = 2;
+  // CUMULATIVE_METRIC
+}
+
+
+// Represents the target of an entry, separated into its own message for potential expansion.
+message Target {
+  // Id (OIDC sub) of the user this entry is related to; optional.
+  string user_id = 1;
+
+  // Name (OIDC email pr preferred username) of the user this entry is related to; optional.
+  string user_name = 2;
+
+  // Resource type of the resource associated with the entry; optional.
+  ResourceType resource_type = 3;
+
+  // Id of the resource associated with the entry; optional.
+  string resource_id = 4;
+
+  // Id of the project
+  string project_id = 5;
+}
+
+// Represents a singular telemetry entry.
+message Entry {
+  // Unique identifier of the entry, must be valid UUID, serves for deduplication at ingress; required.
+  string id = 1;
+
+  // Timestamp of the entry; required.
+  google.protobuf.Timestamp ts = 2;
+
+  // Kind of the entry; required.
+  Kind kind = 3;
+
+  // Target of the entry; optional.
+  Target target = 4;
+
+  // Globally unique identifier/name of the stream of Entries, e.g., ai/h2o/cloud/appstore/instance_started; required.
+  // All entries need to have the same payload type, will be validated in the future.
+  string stream = 5;
+
+  // Globally unique identifier/name of the source at the point of time (e.g., host:port); required.
+  string source = 6;
+
+  // Payload of the entry; required.
+  oneof payload {
+    APIEvent api_event = 13;
+    // DEPRECATED, please use ai.h2o.cloud.telemetry.appstore.v1.AppstoreEvent
+    ai.h2o.cloud.telemetry.v1.AppEvent app_event = 14 [deprecated = true];
+    ai.h2o.cloud.telemetry.v1.AppGauge app_gauge = 15 [deprecated = true];
+    ai.h2o.cloud.telemetry.v1.AppInstanceEvent app_instance_event = 16 [deprecated = true];
+    ai.h2o.cloud.telemetry.v1.AppInstanceGauge app_instance_gauge = 17 [deprecated = true];
+    ai.h2o.cloud.telemetry.v1.UsageGauge usage_gauge = 18;
+    EmptyEvent empty_event = 19;
+    ai.h2o.cloud.telemetry.aiem.v1.EngineEvent engine_event = 30;
+    ai.h2o.cloud.telemetry.featurestore.v1.FeatureStoreEvent feature_store_event = 31;
+    ai.h2o.cloud.telemetry.example.v1.ExampleEvent example_event = 32;
+    ai.h2o.cloud.telemetry.mlops.v1.MLOpsEvent mlops_event = 33;
+    ai.h2o.cloud.telemetry.mlops.v1.MLOpsGauge mlops_gauge = 34;
+    ai.h2o.cloud.telemetry.escorer.v1.EScorerEvent escorer_event = 35;
+    ai.h2o.cloud.telemetry.documentai.v1.DocumentAIEvent document_ai_event = 36;
+    ai.h2o.cloud.telemetry.appstore.v1.AppstoreEvent appstore_event = 37;
+  }
+
+  // Identifier of tenant - cloud environment name; optional.
+  string tenant = 20;
+}
+
+
+// Representation of a single event related to an API call.
+message APIEvent{
+  string service = 1;
+  string method = 2;
+  google.rpc.Status status = 3;
+  google.protobuf.Duration latency = 4;
+}
+
+
+// Representation of a single event that has no detailed information attached.
+// This is the case for events where the header contains all the necessary information.
+message EmptyEvent{}
+
+// Internal representation of report
+message InternalReport {
+  repeated Entry entries = 1;
+  // Timestamp of the report ingestion; required.
+  google.protobuf.Timestamp ts = 2;
+}
+
+// We only support batch-oriented API.
+message ReportRequest {
+  repeated Entry entries = 1;
+}
+
+message ReportResponse {
+
+}
+
+service TelemetryService {
+  rpc Report(ReportRequest) returns (ReportResponse);
+}

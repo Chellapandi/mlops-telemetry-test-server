@@ -1,0 +1,277 @@
+syntax = "proto3";
+
+package ai.h2o.cloud.telemetry.mlops.v1;
+option go_package = "github.com/h2oai/telemetry/gen/go/api/proto/telemetry/mlops/v1";
+
+import "ai/h2o/cloud/telemetry/scoring/v1/scoring.proto";
+
+message MLOpsEvent {
+
+  oneof event {
+
+    UserEnrolled user_created = 1;
+
+    ProjectCreated project_created = 2;
+    ProjectDeleted project_deleted = 3;
+    ProjectUpdated project_updated = 4;
+    ProjectShared project_shared = 5;
+    ProjectUnshared project_unshared = 6;
+
+    DatasetCreated dataset_created = 7;
+    DatasetDeleted dataset_deleted = 8;
+    DatasetLinked dataset_linked = 9;
+    DatasetUnlinked dataset_unlinked = 10;
+
+    ExperimentCreated experiment_created = 11;
+    ExperimentDeleted experiment_deleted = 12;
+    ExperimentLinked experiment_linked = 13;
+    ExperimentUnlinked experiment_unlinked = 14;
+    ExperimentRetrieved experiment_retrieved = 24;
+
+    CreateRegisteredModel create_registered_model = 15;
+    UpdateRegisteredModel update_registered_model = 16;
+    DeleteRegisteredModel delete_registered_model = 25;
+
+    CreateRegisteredModelVersion create_registered_model_version = 17;
+    DeleteRegisteredModelVersion delete_registered_model_version = 26;
+
+    DeploymentCreated deployment_created = 18;
+    DeploymentDeleted deployment_deleted = 19;
+
+    ScoringResultCreated scoring_created = 23;
+  }
+  // operation code value in audit_event table entry which will be useful to process MLOps Telemetry events.
+  string operation_code = 20;
+  // message value in audit_event table entry
+  string operation_message = 21;
+}
+
+message UserEnrolled {
+  User user = 1;
+}
+
+message ProjectCreated {
+  Project project = 1;
+}
+
+message ProjectUpdated {
+  Project project = 1;
+}
+
+message ProjectDeleted {
+  Project project = 1;
+}
+
+message ProjectShared {
+  Project project = 1;
+  string user_id = 2;
+}
+
+message ProjectUnshared {
+  Project project = 1;
+  string user_id = 2;
+}
+
+message DatasetCreated{
+  Dataset dataset = 1;
+}
+
+message DatasetDeleted {
+  Dataset dataset = 1;
+}
+
+message DatasetLinked{
+  Dataset dataset = 1;
+  Project project = 2;
+}
+
+message DatasetUnlinked {
+  Dataset dataset = 1;
+  Project project = 2;
+}
+
+message ExperimentCreated {
+  Experiment experiment = 1;
+}
+
+message ExperimentDeleted {
+  Experiment experiment = 1;
+}
+
+message ExperimentRetrieved {
+  Experiment experiment = 1;
+  Project project = 2;
+}
+
+message ExperimentLinked {
+  Experiment experiment = 1;
+  Project project = 2;
+}
+
+message ExperimentUnlinked {
+  Experiment experiment = 1;
+  Project project = 2;
+}
+
+message CreateRegisteredModel {
+  Model model = 1;
+}
+
+message UpdateRegisteredModel {
+  Model model = 1;
+}
+
+message DeleteRegisteredModel {
+  Model model = 1;
+}
+
+message CreateRegisteredModelVersion {
+  ModelVersion model_version = 1;
+}
+
+message DeleteRegisteredModelVersion {
+  ModelVersion model_version = 2;
+}
+
+message User {
+  string id = 1;
+}
+
+message Project {
+  string id = 1;
+  string display_name = 2;
+}
+
+message Dataset {
+  string id = 1;
+  string project_id = 2;
+  string display_name = 3;
+  int64 size = 4;
+  int64 row_count = 5;
+  int64 column_count = 6;
+}
+
+message Experiment {
+  string id = 1;
+  string project_id = 2;
+  string display_name = 3;
+  string target_column = 4;
+  string weight_column = 5;
+  string fold_column = 6;
+  string training_duration = 7;
+  string status = 8;
+  string training_dataset_id = 9;
+  string validation_dataset_id = 10;
+  string test_dataset_id = 11;
+}
+
+message Model {
+  string id = 1;
+  string project_id = 2;
+  string display_name = 3;
+}
+
+message ModelVersion {
+  string id = 1;
+  int64 version_number = 5;
+  string project_id = 2;
+  Model model = 3;
+  Experiment experiment = 4;
+}
+
+message DeploymentCreated {
+  Deployment deployment = 1;
+}
+
+message DeploymentDeleted {
+  Deployment deployment = 1;
+}
+
+enum DeploymentMode {
+ DEPLOYMENT_MODE_UNSPECIFIED = 0;
+ SINGLE = 1;
+ CHAMPION_CHALLENGER = 2;
+ A_B_TESTING  = 3;
+}
+
+enum DeploymentType {
+ DEPLOYMENT_TYPE_UNSPECIFIED = 0;
+ REAL_TIME = 1;
+ BATCH = 2;
+}
+
+message DeploymentEnvironment {
+ string id = 1;
+ string display_name = 2;
+}
+
+message DeploymentSpecs {
+  ModelVersion model_version = 1;
+  string artifact_type = 2;
+  string runtime = 3;
+  string k8s_resources = 4;
+}
+
+message Deployment {
+ string id = 1;
+ string display_name = 6;
+ ModelVersion model_version = 2 [deprecated = true];
+ DeploymentEnvironment environment = 3;
+ DeploymentMode mode = 4;
+ DeploymentType type = 5;
+ repeated DeploymentSpecs deployment_specs = 7;
+}
+
+
+message ScoringResultCreated {
+ ai.h2o.cloud.telemetry.scoring.v1.ScoringDetails scoring_details = 1;
+ Deployment deployment = 2;
+ string artifact_type = 3; // eg. MOJO, PYTHON, MLFLOW
+}
+
+message MLOpsGauge {
+  oneof gauge {
+    UserGauge user_gauge = 1;
+    ProjectGauge project_gauge = 2;
+    ExperimentGauge experiment_gauge = 3;
+    DatasetGauge dataset_gauge = 4;
+    RegisteredModelGauge registered_model_gauge = 5;
+    RegisteredModelVersionGauge registered_model_version_guage = 6;
+    DeploymentGauge deployment_gauge = 7;
+  }
+}
+
+message UserGauge {
+  int64 total_count = 1;
+}
+
+message ProjectGauge {
+  int64 total_count = 1;
+}
+
+message ExperimentGauge {
+  int64 total_count = 1;
+  int64 failed_count = 2;
+  int64 aborted_count = 3;
+}
+
+message DatasetGauge {
+  int64 total_count = 1;
+}
+
+message RegisteredModelGauge {
+  int64 total_count = 1;
+}
+
+message RegisteredModelVersionGauge {
+  int64 total_count = 1;
+  int64 active_count = 2;
+  int64 inactive_count = 3;
+}
+
+message DeploymentGauge {
+  int64 total_count = 1;
+  int64 single_model_count = 2;
+  int64 shadow_traffic_count = 3;
+  int64 split_traffic_count = 4;
+}

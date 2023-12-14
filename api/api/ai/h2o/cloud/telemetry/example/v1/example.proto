@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+// each component should be placed in separate package
+package ai.h2o.cloud.telemetry.example.v1;
+// go specific - has to be filled accordingly to package name
+option go_package =  "github.com/h2oai/telemetry/gen/go/api/proto/telemetry/example/v1";
+
+// One single event aggregating all specific events
+message ExampleEvent {
+  oneof event {
+    // Specific events of component
+    DataAdded added = 1;
+    DataUpdated updated = 2;
+    DataDeleted deleted = 3;
+
+    // Specific gauges
+    DataSizeGauge size_gauge = 4;
+    DataUsageGauge usage_gauge = 5;
+  }
+}
+
+// Common part of events
+message Data {
+  string id = 1;
+  string content = 2;
+}
+
+message DataAdded {
+  Data data = 1;
+}
+
+message DataUpdated {
+  Data data = 1;
+}
+
+message DataDeleted {
+  Data data = 1;
+}
+
+// Gauge metric messages
+message DataSizeGauge {
+  uint64 size_in_bytes = 1;
+  uint64 records_count = 2;
+}
+
+message DataUsageGauge {
+  uint64 downloads_count = 1;
+}

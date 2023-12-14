@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package ai.h2o.cloud.telemetry.aiem.v1;
+option go_package =  "github.com/h2oai/telemetry/gen/go/api/proto/telemetry/aiem/v1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+message EngineEvent{
+  oneof event {
+	EngineEventStarting starting = 1;
+	EngineEventRunning running = 2;
+	EngineEventPausing pausing = 3;
+	EngineEventPaused paused = 4;
+	EngineEventFailed failed = 5;
+	EngineEventDeleting deleting = 6;
+  }
+}
+
+message EngineEventStarting {
+	Engine engine = 1;
+}
+
+message EngineEventRunning {
+	Engine engine = 1;
+	PodStatus status = 2;
+}
+
+message EngineEventPausing {
+	Engine engine = 1;
+}
+
+message EngineEventPaused {
+	Engine engine = 1;
+}
+
+message EngineEventFailed {
+	Engine engine = 1;
+	PodFailure failure = 2;
+}
+
+message EngineEventDeleting {
+	Engine engine = 1;
+}
+
+message Engine {
+  // Engine resource name.
+  string name = 1;
+
+  // Globally unique identifier of the resource.
+  string uid = 2;
+
+  // Name of an entity that created the Engine.
+  string creator = 3;
+
+  // Human-readable creator name.
+  string creator_display_name = 15;
+
+  // All possible Engine types.
+  enum Type {
+    // Engine type is unspecified or unknown.
+    TYPE_UNSPECIFIED = 0;
+    // Driverless AI Engine.
+    TYPE_DRIVERLESS_AI = 1;
+    // H2O Engine.
+    TYPE_H2O = 2;
+  }
+
+  // Output only.
+  Type type = 4;
+
+  // Time when the Engine creation was requested.
+  google.protobuf.Timestamp create_time = 5;
+
+  // Time when the Engine was last updated.
+  optional google.protobuf.Timestamp update_time = 6;
+
+  // Time when the Engine was last resumed (or started for the first time).
+  optional google.protobuf.Timestamp resume_time = 7;
+
+  // Human-readable name of the Engine. Contains at most 63 characters and is not unique.
+  string display_name = 8;
+
+  // Engine version identifier.
+  string version = 9;
+
+  // The amount of CPU units in total requested by this Engine.
+  int32 cpu = 10;
+
+  // The amount of GPU units in total requested by this Engine.
+  int32 gpu = 11;
+
+  // The amount of memory in bytes requested by this Engine.
+  int64 memory_bytes = 12;
+
+  // The amount of storage in bytes requested by this Engine.
+  int64 storage_bytes = 13;
+
+  // The UUID of a single run of the Engine.
+  string session = 14;
+}
+
+message PodStatus {
+	google.protobuf.Duration pod_scheduled_duration = 1;
+	google.protobuf.Duration containers_ready_duration = 2;
+	google.protobuf.Duration initialized_duration = 3;
+	google.protobuf.Duration ready_duration = 4;
+	google.protobuf.Duration pull_time = 5;
+}
+
+message PodFailure {
+	string reason = 1;
+	string message = 2;
+}
